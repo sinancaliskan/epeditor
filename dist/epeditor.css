@@ -1,1 +1,151 @@
-/* Kullanıcının gönderdiği CSS içeriği */
+/* Tüm wrapper scroll yapılabilir */
+.epeditor-wrapper {
+  max-height: 100vh;
+  overflow: auto;
+  box-sizing: border-box;
+  /*padding: 1rem;*/
+  background: #fff;
+}
+
+/* Toolbar */
+.ep-toolbar {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ep-toolbar .btn {
+  cursor: pointer;
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background: white;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ep-toolbar .btn:hover {
+  background: #eee;
+}
+
+.ep-toolbar select,
+.ep-toolbar .form-select {
+  max-width: 100%;
+  padding: 5px;
+  font-size: 14px;
+}
+
+/* Editör alanı */
+.ep-editor {
+    min-height: 100%;
+    height: 100%;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    overflow: auto;
+    background-color: unset; /* Arka planı beyaz yapıldı */
+    word-wrap: normal;
+    box-sizing: border-box;
+    background-color: #f2f2f2;
+    color: green !important;
+}
+
+.ep-editor:focus {
+border-radius: 10px !important;
+  border: solid aliceblue 1px;
+  color: green;	
+  padding: 9px;
+}
+
+/* Kod görünümü */
+.ep-code-view {
+  white-space: pre;
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  background: #f5f5f5;
+  color: #333;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+  min-height: 200px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Textarea scroll destekli */
+.epeditor-wrapper textarea {
+  width: 100%;
+  min-width: 600px;           /* Ufalmayı engeller */
+  max-width: 100%;
+  height: 300px;
+  overflow-y: auto;
+  resize: vertical;
+  font-size: 14px;
+  padding: 10px;
+  font-family: monospace;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+
+
+/* HTML Tag renklendirme */
+.ep-code-view span.tag {
+  color: #0077aa;
+  font-weight: bold;
+}
+.ep-code-view span.attr-name {
+  color: #ff4500;
+}
+.ep-code-view span.attr-value {
+  color: #a31515;
+}
+.ep-code-view span.text {
+  color: #000;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .ep-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ep-toolbar .btn {
+    flex: 1 1 auto;
+    width: 100%;
+    text-align: center;
+    margin-right: 0;
+  }
+
+  .ep-toolbar select {
+    width: 100%;
+  }
+
+  .epeditor-wrapper {
+    padding: 0.5rem;
+  }
+}
+
+.ep-toolbar button, .ep-toolbar select, .ep-toolbar input[type="color"] { margin:0px !important;}
+/* Liste görünümleri */
+.ep-editor ul,
+.ep-editor ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.ep-editor ul {
+    list-style-type: disc;
+}
+
+.ep-editor ol {
+    list-style-type: decimal;
+}
+
+.ep-editor li {
+    margin-bottom: 0.4em;
+    line-height: 1.5;
+}
