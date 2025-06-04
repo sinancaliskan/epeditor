@@ -1,9 +1,8 @@
 /* Tüm wrapper scroll yapılabilir */
 .epeditor-wrapper {
-  max-height: 100vh;
-  overflow: auto;
+  /*max-height: 100vh;*/
+  /*overflow: auto;*/
   box-sizing: border-box;
-  /*padding: 1rem;*/
   background: #fff;
 }
 
@@ -13,6 +12,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  position:sticky;
 }
 
 .ep-toolbar .btn {
@@ -29,15 +29,16 @@
   background: #eee;
 }
 
-.ep-toolbar select,
-.ep-toolbar .form-select {
-  max-width: 100%;
-  padding: 5px;
-  font-size: 14px;
-}
+    .ep-toolbar select,
+    .ep-toolbar .form-select {
+        /*padding: 5px;*/
+        font-size: 14px;
+        width: 98px !important;
+    }
 
 /* Editör alanı */
 .ep-editor {
+
     min-height: 100%;
     height: 100%;
     padding: 10px;
@@ -80,7 +81,7 @@ border-radius: 10px !important;
   min-width: 600px;           /* Ufalmayı engeller */
   max-width: 100%;
   height: 300px;
-  overflow-y: auto;
+  
   resize: vertical;
   font-size: 14px;
   padding: 10px;
@@ -123,10 +124,7 @@ border-radius: 10px !important;
   .ep-toolbar select {
     width: 100%;
   }
-
-  .epeditor-wrapper {
-    padding: 0.5rem;
-  }
+    
 }
 
 .ep-toolbar button, .ep-toolbar select, .ep-toolbar input[type="color"] { margin:0px !important;}
@@ -148,4 +146,8 @@ border-radius: 10px !important;
 .ep-editor li {
     margin-bottom: 0.4em;
     line-height: 1.5;
+}
+.epeditor-container {
+    overflow-y: auto;
+    max-height: 100vh;
 }
