@@ -336,7 +336,7 @@
             fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand"></i>&nbsp;Tam Ekran';
             fullscreenBtn.title = "Düzenlemeyi Tam Ekranda Yap";
             fullscreenBtn.setAttribute('type', 'button');
-            fullscreenBtn.className = 'px-3 py-1 btn btn-outline-primary ms-2 text-sm text-gray-700';
+            fullscreenBtn.className = 'ep-btn px-3 py-1 border rounded text-sm text-gray-700 hover:bg-gray-100';
             fullscreenBtn.onclick = () => toggleFullScreen(wrapper);
             wrapper.querySelector('.ep-toolbar .btn-group').appendChild(fullscreenBtn);
         });
