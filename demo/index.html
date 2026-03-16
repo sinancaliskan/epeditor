@@ -1,19 +1,39 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>EPEditor Demo</title>
-  <link rel="stylesheet" href="../dist/epeditor.css">
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="../dist/epeditor.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>body { padding: 2rem; font-family: sans-serif; }</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPEditor Demo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
+<link rel="stylesheet" href="EPEditor.css">
+<style>
+  body { margin: 0; padding: 20px; background: #e2e8f0; font-family: sans-serif; box-sizing: border-box; }
+  h3 { margin: 0 0 8px; color: #334155; font-size: 13px; }
+  .demo-box {
+    background: white;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    height: 400px;          /* ← Parent yüksekliği */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  textarea#myeditor { display: none; }
+</style>
 </head>
 <body>
-  <h1>EPEditor v1.2 Demo</h1>
-  <textarea id="editorum" class="editorum"></textarea>
-  <script>
-    $('.editorum').EPEditor();
-  </script>
+
+<h3>Parent div = 400px yükseklik</h3>
+<div class="demo-box">
+  <textarea id="myeditor"><p>Merhaba <strong>EPEditor</strong>!</p><ul><li>Madde 1</li><li>Madde 2</li><li>Madde 3</li></ul></textarea>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="epeditor.js"></script>
+<script>
+  $('#myeditor').EPEditor({ autoSave: false, restoreIfExists: false,onChange: (html) => console.log(html) });
+</script>
 </body>
 </html>

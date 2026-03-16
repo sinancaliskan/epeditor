@@ -1,134 +1,255 @@
-/* Tüm wrapper scroll yapılabilir */
+/* ======================================================
+   EPEditor.css — FINAL v1.9
+   Height Sync + Stable Scroll + Visible Scrollbar
+   ====================================================== */
+
+/* ------------------------------------------------------
+   Wrapper
+------------------------------------------------------ */
 .epeditor-wrapper {
-  /*max-height: 100vh;*/
-  /*overflow: auto;*/
-  box-sizing: border-box;
-  background: #fff;
-}
-
-/* Toolbar */
-.ep-toolbar {
-  margin-bottom: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  position:sticky;
-}
-
-.ep-toolbar .btn {
-  cursor: pointer;
-  margin-right: 5px;
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  background: white;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.ep-toolbar .btn:hover {
-  background: #eee;
-}
-
-    .ep-toolbar select,
-    .ep-toolbar .form-select {
-        /*padding: 5px;*/
-        font-size: 14px;
-        width: 98px !important;
-    }
-
-/* Editör alanı */
-.ep-editor {
-
-    min-height: 100%;
+    background: #fff;
+    box-sizing: border-box;
     height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ------------------------------------------------------
+   Toolbar
+------------------------------------------------------ */
+.ep-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 8px;
+    padding: 6px 8px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    flex-shrink: 0;
+    background: #f1f5f9;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.ep-toolbar .btn-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.ep-toolbar .btn-group + .btn-group {
+    margin-left: 6px;
+    padding-left: 6px;
+    border-left: 1px solid #cbd5e1;
+}
+
+.ep-toolbar .ep-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 8px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+}
+
+.ep-toolbar .ep-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.ep-toolbar .ep-btn:disabled,
+.ep-toolbar .ep-btn.opacity-50 {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.ep-toolbar .ep-btn.bg-gray-300 {
+    background: #cbd5e1;
+    color: #1e293b;
+}
+
+.ep-toolbar .ep-fullscreen-btn {
+    font-size: 12px;
+}
+
+.ep-toolbar select.ep-format {
+    height: 30px;
+    padding: 0 8px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.12s;
+}
+
+.ep-toolbar select.ep-format:hover {
+    background: #e2e8f0;
+}
+
+
+/* ------------------------------------------------------
+   ORTAK EDITOR YÜKSEKLİK KURALI
+------------------------------------------------------ */
+.epeditor-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ep-editor,
+.ep-code-view {
+    flex: 1 1 auto;
+    height: 0; /* flex item'ın taşmaması için */
+    min-height: 100%;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.ep-md-view {
+    flex: 1 1 auto;
+    min-height: 0;
+    box-sizing: border-box;
+    resize: none;
+}
+
+/* ------------------------------------------------------
+   WYSIWYG (Metin View)
+------------------------------------------------------ */
+.ep-editor {
     padding: 10px;
     font-family: Arial, sans-serif;
     font-size: 14px;
     border: none;
     outline: none;
-    overflow: auto;
-    background-color: unset; /* Arka planı beyaz yapıldı */
-    word-wrap: normal;
-    box-sizing: border-box;
-    background-color: #f2f2f2;
-    color: green !important;
+    overflow-x: hidden;
+    background-color: #f5f5f5;
+    color: #1a1a1a;
+    word-break: break-word;
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    scrollbar-width: auto;
+    scrollbar-color: rgba(0,0,0,0.5) rgba(0,0,0,0.12);
 }
 
-.ep-editor:focus {
-border-radius: 10px !important;
-  border: solid aliceblue 1px;
-  color: green;	
-  padding: 9px;
-}
+    .ep-editor:focus {
+        box-shadow: 0 0 0 2px #b0e0e6 inset;
+        background-color: #f0f8ff;
+    }
 
-/* Kod görünümü */
+/* ------------------------------------------------------
+   CODE VIEW
+------------------------------------------------------ */
 .ep-code-view {
-  white-space: pre;
-  font-family: Consolas, Monaco, 'Courier New', monospace;
-  background: #f5f5f5;
-  color: #333;
-  padding: 10px;
-  border-radius: 4px;
-  overflow-x: auto;
-  min-height: 200px;
-  width: 100%;
-  box-sizing: border-box;
+    background: #0b1020;
+    color: #e5e7eb;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: none;
+    overflow-x: auto;
+    white-space: pre;
+    -webkit-font-smoothing: antialiased;
+    scrollbar-width: auto;
+    scrollbar-color: rgba(255,255,255,0.65) rgba(255,255,255,0.15);
 }
 
-/* Textarea scroll destekli */
-.epeditor-wrapper textarea {
-  width: 100%;
-  min-width: 600px;           /* Ufalmayı engeller */
-  max-width: 100%;
-  height: 300px;
-  
-  resize: vertical;
-  font-size: 14px;
-  padding: 10px;
-  font-family: monospace;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
+/* ------------------------------------------------------
+   WebKit Scrollbar (Chrome / Edge / Safari)
+------------------------------------------------------ */
+.ep-code-view::-webkit-scrollbar,
+.ep-editor::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
 }
 
-
-
-/* HTML Tag renklendirme */
-.ep-code-view span.tag {
-  color: #0077aa;
-  font-weight: bold;
-}
-.ep-code-view span.attr-name {
-  color: #ff4500;
-}
-.ep-code-view span.attr-value {
-  color: #a31515;
-}
-.ep-code-view span.text {
-  color: #000;
+.ep-code-view::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.12);
 }
 
-/* Responsive */
-@media (max-width: 576px) {
-  .ep-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .ep-toolbar .btn {
-    flex: 1 1 auto;
-    width: 100%;
-    text-align: center;
-    margin-right: 0;
-  }
-
-  .ep-toolbar select {
-    width: 100%;
-  }
-    
+.ep-code-view::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.55);
+    border-radius: 10px;
+    border: 3px solid rgba(255,255,255,0.12);
 }
 
-.ep-toolbar button, .ep-toolbar select, .ep-toolbar input[type="color"] { margin:0px !important;}
-/* Liste görünümleri */
+.ep-code-view::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255,255,255,0.85);
+}
+
+.ep-editor::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.08);
+}
+
+.ep-editor::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.45);
+    border-radius: 10px;
+}
+
+/* ------------------------------------------------------
+   Syntax Highlight
+------------------------------------------------------ */
+.ep-code-view .tag {
+    color: #7aa2f7;
+    font-weight: 600;
+}
+
+.ep-code-view .attr-name {
+    color: #f7768e;
+}
+
+.ep-code-view .attr-value {
+    color: #9ece6a;
+}
+
+.ep-code-view .comment {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.ep-code-view .attr-name.class-attr {
+    color: #ffb454;
+    font-weight: 700;
+}
+
+.ep-code-view .attr-value.class-value {
+    color: #ffd27f;
+    font-style: italic;
+}
+
+.ep-code-view .attr-name.href-attr {
+    color: #ff80bf;
+    font-weight: 700;
+}
+
+.ep-code-view .attr-value.href-value {
+    color: #66aaff;
+    text-decoration: underline dotted rgba(102,170,255,0.4);
+}
+
+/* ------------------------------------------------------
+   Lists (WYSIWYG)
+------------------------------------------------------ */
 .ep-editor ul,
 .ep-editor ol {
     margin: 1em 0;
@@ -147,7 +268,554 @@ border-radius: 10px !important;
     margin-bottom: 0.4em;
     line-height: 1.5;
 }
-.epeditor-container {
+
+/* ------------------------------------------------------
+   Table (WYSIWYG)
+------------------------------------------------------ */
+.ep-editor table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.8em 0;
+    font-size: 14px;
+}
+
+.ep-editor th,
+.ep-editor td {
+    border: 1px solid #e2e8f0;
+    padding: 6px 10px;
+    min-width: 60px;
+    min-height: 32px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.ep-editor th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+}
+
+.ep-editor tr:hover td {
+    background: #fafafa;
+}
+
+/* ------------------------------------------------------
+   Word Count Bar
+------------------------------------------------------ */
+.ep-word-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.ep-wc-sep { opacity: 0.4; }
+
+/* ------------------------------------------------------
+   Table Modal Grid
+------------------------------------------------------ */
+.ep-table-grid-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.ep-table-grid {
+    display: grid;
+    gap: 3px;
+    cursor: pointer;
+}
+
+.ep-tbl-cell {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 3px;
+    background: #f8fafc;
+    transition: background 0.08s, border-color 0.08s;
+}
+
+.ep-tbl-cell-active {
+    background: #bfdbfe;
+    border-color: #7aa2f7;
+}
+
+.ep-table-grid-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    min-width: 50px;
+    text-align: center;
+}
+
+/* ------------------------------------------------------
+   Find & Replace Panel
+------------------------------------------------------ */
+#ep-fr-modal {
+    /* pozisyon JS ile ayarlanıyor */
+}
+
+.ep-fr-box {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    padding: 12px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ep-fr-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ep-fr-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #94a3b8;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+.ep-fr-close:hover { color: #1e293b; }
+
+.ep-fr-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.ep-fr-row .ep-modal-input { flex: 1; }
+
+.ep-fr-row .ep-modal-btn {
+    padding: 7px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ep-fr-status {
+    font-size: 11px;
+    color: #64748b;
+    min-height: 16px;
+}
+
+mark.ep-fr-highlight {
+    background: #fef08a;
+    border-radius: 2px;
+    color: inherit;
+}
+
+mark.ep-fr-highlight[style*="f59e0b"] {
+    background: #f59e0b !important;
+}
+
+/* ------------------------------------------------------
+   About Modal
+------------------------------------------------------ */
+#ep-about-modal {
+    /* paylaşılan modal backdrop/box CSS'i kullanır */
+}
+
+.ep-about-box {
+    width: 420px;
+    max-width: calc(100vw - 32px);
+}
+
+.ep-about-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #1e293b;
+    color: #fff;
+    border-radius: 7px;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.ep-about-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.ep-about-version {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-weight: 600;
+    color: #334155;
+    font-size: 11px;
+}
+
+.ep-about-sep { opacity: 0.4; }
+
+.ep-about-desc {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.55;
+    padding: 4px 0;
+}
+
+.ep-about-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 12px;
+    padding: 8px 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.ep-about-feature {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #374151;
+}
+
+.ep-about-feature i {
+    color: #22c55e;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.ep-about-license {
+    background: #fefce8;
+    border: 1px solid #fef08a;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.ep-about-license-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #854d0e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+}
+
+.ep-about-license-body {
+    font-size: 12px;
+    color: #713f12;
+    line-height: 1.6;
+}
+
+.ep-about-license-body a {
+    color: #92400e;
+    font-weight: 600;
+}
+
+.ep-about-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #94a3b8;
+    padding-top: 4px;
+}
+
+.ep-about-footer a {
+    color: #7aa2f7;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ep-about-footer a:hover {
+    text-decoration: underline;
+}
+
+.ep-info-btn {
+    margin-left: 2px;
+    color: #94a3b8 !important;
+}
+
+.ep-info-btn:hover {
+    color: #475569 !important;
+}
+
+
+#ep-image-modal,
+#ep-link-modal,
+#ep-table-modal,
+#ep-about-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ep-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(2px);
+}
+
+.ep-modal-box {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 20px;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ep-modal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ep-modal-tabs {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    border-radius: 7px;
+    padding: 3px;
+}
+
+.ep-modal-tab {
+    flex: 1;
+    padding: 5px 0;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: #64748b;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+.ep-modal-tab.ep-modal-tab-active {
+    background: #fff;
+    color: #1e293b;
+    font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.ep-modal-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.12s;
+}
+
+.ep-modal-input:focus {
+    border-color: #7aa2f7;
+}
+
+.ep-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #f1f5f9;
+    border: 1px dashed #cbd5e1;
+    border-radius: 7px;
+    font-size: 13px;
+    color: #475569;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.ep-upload-label:hover {
+    background: #e2e8f0;
+}
+
+.ep-link-newtab-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ep-link-newtab-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: #1e293b;
+}
+
+
+    display: flex;
+    gap: 8px;
+}
+
+.ep-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.ep-modal-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.ep-modal-cancel {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.ep-modal-cancel:hover {
+    background: #e2e8f0;
+}
+
+.ep-modal-insert {
+    background: #1e293b;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ep-modal-insert:hover {
+    background: #334155;
+}
+
+
+.ep-fold-toggle {
+    display: inline-block;
+    cursor: pointer;
+    width: 16px;
+    text-align: center;
+    margin-right: 5px;
+    color: #7aa2f7;
+    user-select: none;
+    font-weight: 700;
+    font-size: 11px;
+    opacity: 0.75;
+    transition: opacity 0.15s, color 0.15s;
+    vertical-align: baseline;
+}
+
+    .ep-fold-toggle:hover {
+        opacity: 1;
+        color: #a9c4ff;
+    }
+
+    .ep-fold-toggle.ep-fold-closed {
+        color: #94a3b8;
+    }
+
+.ep-fold-block {
+    display: block; /* block davran ki satırlar kaymasın */
+}
+
+/* ------------------------------------------------------
+   Fullscreen Mode
+   (fullscreen class adı: is-fullscreen)
+------------------------------------------------------ */
+.epeditor-wrapper.epeditor-fullscreen .ep-editor,
+.epeditor-wrapper.epeditor-fullscreen .ep-code-view {
+    /* Normal modda zaten flex:1 ile doluyor, fullscreen'de sadece overflow garantile */
     overflow-y: auto;
-    max-height: 100vh;
+}
+
+/* ------------------------------------------------------
+   Responsive
+------------------------------------------------------ */
+@media (max-width: 576px) {
+    .ep-toolbar {
+        gap: 1px;
+        padding: 4px 6px;
+    }
+
+    .ep-toolbar .btn-group {
+        gap: 1px;
+    }
+
+    .ep-toolbar .ep-btn {
+        min-width: 24px;
+        height: 26px;
+        font-size: 11px;
+        padding: 0 5px;
+    }
+
+    .ep-toolbar select.ep-format {
+        height: 26px;
+        font-size: 11px;
+        padding: 0 4px;
+    }
+
+    .ep-toolbar .ep-fullscreen-btn {
+        font-size: 10px;
+        padding: 0 6px;
+    }
+
+    /* Tam Ekran yazısını gizle, sadece ikon kalsın */
+    .ep-toolbar .ep-fullscreen-btn span.ep-fs-text {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------
+   Light Theme Override
+------------------------------------------------------ */
+@media (prefers-color-scheme: light) {
+    .ep-code-view {
+        background: #f9fafb;
+        color: #1f2937;
+        scrollbar-color: #94a3b8 #e5e7eb;
+    }
+
+        .ep-code-view .tag {
+            color: #1a73e8;
+        }
+
+        .ep-code-view .attr-name {
+            color: #d14;
+        }
+
+        .ep-code-view .attr-value {
+            color: #065f46;
+        }
+
+        .ep-code-view .comment {
+            color: #6b7280;
+        }
 }
