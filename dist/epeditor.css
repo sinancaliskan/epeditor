@@ -1,31 +1,34 @@
 /* ======================================================
-   EPEditor.css — FINAL v1.9
-   Height Sync + Stable Scroll + Visible Scrollbar
+   EPEditor.css — v2.1
+   Tüm kurallar .epeditor-wrapper altında scope'lu
    ====================================================== */
 
 /* ------------------------------------------------------
    Wrapper
 ------------------------------------------------------ */
 .epeditor-wrapper {
-    background: #fff;
-    box-sizing: border-box;
-    height: 100%;
-    min-height: 0;
     display: flex;
     flex-direction: column;
+    background: #fff;
+    box-sizing: border-box;
+    height: auto;
+    min-height: 0;
     overflow: hidden;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #1a1a1a;
 }
 
 /* ------------------------------------------------------
    Toolbar
 ------------------------------------------------------ */
-.ep-toolbar {
+.epeditor-wrapper .ep-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 2px;
+    gap: 1px;
     margin-bottom: 8px;
-    padding: 6px 8px;
+    padding: 5px 6px;
     position: sticky;
     top: 0;
     z-index: 20;
@@ -33,80 +36,98 @@
     background: #f1f5f9;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
+    box-sizing: border-box;
 }
 
-.ep-toolbar .btn-group {
+.epeditor-wrapper .ep-toolbar .btn-group {
     display: flex;
     align-items: center;
     gap: 2px;
 }
 
-.ep-toolbar .btn-group + .btn-group {
+.epeditor-wrapper .ep-toolbar .btn-group + .btn-group {
     margin-left: 6px;
     padding-left: 6px;
     border-left: 1px solid #cbd5e1;
 }
 
-.ep-toolbar .ep-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 30px;
-    height: 30px;
-    padding: 0 8px;
-    border: none;
+.epeditor-wrapper .ep-toolbar .ep-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border: none !important;
     border-radius: 5px;
-    background: transparent;
-    color: #475569;
-    font-size: 13px;
+    background: transparent !important;
+    color: #475569 !important;
+    font-size: 12px !important;
     cursor: pointer;
     transition: background 0.12s, color 0.12s;
     white-space: nowrap;
+    box-sizing: border-box;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    font-family: inherit;
+    box-shadow: none !important;
+    outline: none !important;
+    margin: 0 !important;
 }
 
-.ep-toolbar .ep-btn:hover {
-    background: #e2e8f0;
-    color: #1e293b;
+.epeditor-wrapper .ep-toolbar .ep-btn:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
 }
 
-.ep-toolbar .ep-btn:disabled,
-.ep-toolbar .ep-btn.opacity-50 {
-    opacity: 0.35;
+.epeditor-wrapper .ep-toolbar .ep-btn:disabled,
+.epeditor-wrapper .ep-toolbar .ep-btn.opacity-50 {
+    opacity: 0.35 !important;
     cursor: not-allowed;
     pointer-events: none;
 }
 
-.ep-toolbar .ep-btn.bg-gray-300 {
-    background: #cbd5e1;
-    color: #1e293b;
+.epeditor-wrapper .ep-toolbar .ep-btn.bg-gray-300 {
+    background: #cbd5e1 !important;
+    color: #1e293b !important;
 }
 
-.ep-toolbar .ep-fullscreen-btn {
-    font-size: 12px;
+.epeditor-wrapper .ep-toolbar .ep-fullscreen-btn {
+    font-size: 12px !important;
 }
 
-.ep-toolbar select.ep-format {
-    height: 30px;
-    padding: 0 8px;
-    border: none;
+.epeditor-wrapper .ep-toolbar .ep-info-btn {
+    color: #94a3b8 !important;
+}
+
+.epeditor-wrapper .ep-toolbar .ep-info-btn:hover {
+    color: #475569 !important;
+}
+
+.epeditor-wrapper .ep-toolbar select.ep-format {
+    height: 28px;
+    padding: 0 6px;
+    border: none !important;
     border-radius: 5px;
-    background: transparent;
-    color: #475569;
-    font-size: 13px;
+    background: transparent !important;
+    color: #475569 !important;
+    font-size: 12px !important;
     cursor: pointer;
-    outline: none;
+    outline: none !important;
     transition: background 0.12s;
+    box-sizing: border-box;
+    font-family: inherit;
+    box-shadow: none !important;
 }
 
-.ep-toolbar select.ep-format:hover {
-    background: #e2e8f0;
+.epeditor-wrapper .ep-toolbar select.ep-format:hover {
+    background: #e2e8f0 !important;
 }
-
 
 /* ------------------------------------------------------
-   ORTAK EDITOR YÜKSEKLİK KURALI
+   Container & Editor Heights
 ------------------------------------------------------ */
-.epeditor-container {
+.epeditor-wrapper .epeditor-container {
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
@@ -114,34 +135,42 @@
     overflow: hidden;
 }
 
-.ep-editor,
-.ep-code-view {
+.epeditor-wrapper .ep-editor,
+.epeditor-wrapper .ep-code-view {
     flex: 1 1 auto;
-    height: 0; /* flex item'ın taşmaması için */
-    min-height: 100%;
-    max-height: none;
+    height: auto;
+    min-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
 }
 
-.ep-md-view {
+.epeditor-wrapper .ep-md-view {
     flex: 1 1 auto;
-    min-height: 0;
+    min-height: 200px;
+    max-height: 400px;
     box-sizing: border-box;
     resize: none;
+    width: 100%;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 10px;
+    border: none;
+    outline: none;
+    background: #f5f5f5;
+    overflow-y: auto;
 }
 
 /* ------------------------------------------------------
-   WYSIWYG (Metin View)
+   WYSIWYG
 ------------------------------------------------------ */
-.ep-editor {
+.epeditor-wrapper .ep-editor {
     padding: 10px;
     font-family: Arial, sans-serif;
     font-size: 14px;
     border: none;
     outline: none;
-    overflow-x: hidden;
     background-color: #f5f5f5;
     color: #1a1a1a;
     word-break: break-word;
@@ -150,15 +179,15 @@
     scrollbar-color: rgba(0,0,0,0.5) rgba(0,0,0,0.12);
 }
 
-    .ep-editor:focus {
-        box-shadow: 0 0 0 2px #b0e0e6 inset;
-        background-color: #f0f8ff;
-    }
+.epeditor-wrapper .ep-editor:focus {
+    box-shadow: 0 0 0 2px #b0e0e6 inset;
+    background-color: #f0f8ff;
+}
 
 /* ------------------------------------------------------
    CODE VIEW
 ------------------------------------------------------ */
-.ep-code-view {
+.epeditor-wrapper .ep-code-view {
     background: #0b1020;
     color: #e5e7eb;
     font-family: Consolas, Monaco, "Courier New", monospace;
@@ -168,141 +197,78 @@
     border-radius: 10px;
     border: none;
     overflow-x: auto;
+    overflow-y: auto;
     white-space: pre;
     -webkit-font-smoothing: antialiased;
     scrollbar-width: auto;
     scrollbar-color: rgba(255,255,255,0.65) rgba(255,255,255,0.15);
 }
 
-/* ------------------------------------------------------
-   WebKit Scrollbar (Chrome / Edge / Safari)
------------------------------------------------------- */
-.ep-code-view::-webkit-scrollbar,
-.ep-editor::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-}
+.epeditor-wrapper .ep-code-view::-webkit-scrollbar,
+.epeditor-wrapper .ep-editor::-webkit-scrollbar { width: 12px; height: 12px; }
 
-.ep-code-view::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.12);
-}
-
-.ep-code-view::-webkit-scrollbar-thumb {
-    background-color: rgba(255,255,255,0.55);
-    border-radius: 10px;
-    border: 3px solid rgba(255,255,255,0.12);
-}
-
-.ep-code-view::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255,255,255,0.85);
-}
-
-.ep-editor::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.08);
-}
-
-.ep-editor::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.45);
-    border-radius: 10px;
-}
+.epeditor-wrapper .ep-code-view::-webkit-scrollbar-track { background: rgba(255,255,255,0.12); }
+.epeditor-wrapper .ep-code-view::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.55); border-radius: 10px; border: 3px solid rgba(255,255,255,0.12); }
+.epeditor-wrapper .ep-code-view::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.85); }
+.epeditor-wrapper .ep-editor::-webkit-scrollbar-track { background: rgba(0,0,0,0.08); }
+.epeditor-wrapper .ep-editor::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.45); border-radius: 10px; }
 
 /* ------------------------------------------------------
    Syntax Highlight
 ------------------------------------------------------ */
-.ep-code-view .tag {
+.epeditor-wrapper .ep-code-view .tag { color: #7aa2f7; font-weight: 600; }
+.epeditor-wrapper .ep-code-view .attr-name { color: #f7768e; }
+.epeditor-wrapper .ep-code-view .attr-value { color: #9ece6a; }
+.epeditor-wrapper .ep-code-view .comment { color: #94a3b8; font-style: italic; }
+.epeditor-wrapper .ep-code-view .attr-name.class-attr { color: #ffb454; font-weight: 700; }
+.epeditor-wrapper .ep-code-view .attr-value.class-value { color: #ffd27f; font-style: italic; }
+.epeditor-wrapper .ep-code-view .attr-name.href-attr { color: #ff80bf; font-weight: 700; }
+.epeditor-wrapper .ep-code-view .attr-value.href-value { color: #66aaff; text-decoration: underline dotted rgba(102,170,255,0.4); }
+
+/* ------------------------------------------------------
+   Fold Toggle
+------------------------------------------------------ */
+.epeditor-wrapper .ep-fold-toggle {
+    display: inline-block;
+    cursor: pointer;
+    width: 16px;
+    text-align: center;
+    margin-right: 5px;
     color: #7aa2f7;
-    font-weight: 600;
-}
-
-.ep-code-view .attr-name {
-    color: #f7768e;
-}
-
-.ep-code-view .attr-value {
-    color: #9ece6a;
-}
-
-.ep-code-view .comment {
-    color: #94a3b8;
-    font-style: italic;
-}
-
-.ep-code-view .attr-name.class-attr {
-    color: #ffb454;
+    user-select: none;
     font-weight: 700;
+    font-size: 11px;
+    opacity: 0.75;
+    transition: opacity 0.15s, color 0.15s;
+    vertical-align: baseline;
 }
 
-.ep-code-view .attr-value.class-value {
-    color: #ffd27f;
-    font-style: italic;
-}
-
-.ep-code-view .attr-name.href-attr {
-    color: #ff80bf;
-    font-weight: 700;
-}
-
-.ep-code-view .attr-value.href-value {
-    color: #66aaff;
-    text-decoration: underline dotted rgba(102,170,255,0.4);
-}
+.epeditor-wrapper .ep-fold-toggle:hover { opacity: 1; color: #a9c4ff; }
+.epeditor-wrapper .ep-fold-toggle.ep-fold-closed { color: #94a3b8; }
+.epeditor-wrapper .ep-fold-block { display: block; }
 
 /* ------------------------------------------------------
    Lists (WYSIWYG)
 ------------------------------------------------------ */
-.ep-editor ul,
-.ep-editor ol {
-    margin: 1em 0;
-    padding-left: 2em;
-}
-
-.ep-editor ul {
-    list-style-type: disc;
-}
-
-.ep-editor ol {
-    list-style-type: decimal;
-}
-
-.ep-editor li {
-    margin-bottom: 0.4em;
-    line-height: 1.5;
-}
+.epeditor-wrapper .ep-editor ul,
+.epeditor-wrapper .ep-editor ol { margin: 1em 0; padding-left: 2em; }
+.epeditor-wrapper .ep-editor ul { list-style-type: disc; }
+.epeditor-wrapper .ep-editor ol { list-style-type: decimal; }
+.epeditor-wrapper .ep-editor li { margin-bottom: 0.4em; line-height: 1.5; }
 
 /* ------------------------------------------------------
    Table (WYSIWYG)
 ------------------------------------------------------ */
-.ep-editor table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 0.8em 0;
-    font-size: 14px;
-}
-
-.ep-editor th,
-.ep-editor td {
-    border: 1px solid #e2e8f0;
-    padding: 6px 10px;
-    min-width: 60px;
-    min-height: 32px;
-    text-align: left;
-    vertical-align: top;
-}
-
-.ep-editor th {
-    background: #f8fafc;
-    font-weight: 600;
-    color: #374151;
-}
-
-.ep-editor tr:hover td {
-    background: #fafafa;
-}
+.epeditor-wrapper .ep-editor table { border-collapse: collapse; width: 100%; margin: 0.8em 0; font-size: 14px; }
+.epeditor-wrapper .ep-editor th,
+.epeditor-wrapper .ep-editor td { border: 1px solid #e2e8f0; padding: 6px 10px; min-width: 60px; min-height: 32px; text-align: left; vertical-align: top; }
+.epeditor-wrapper .ep-editor th { background: #f8fafc; font-weight: 600; color: #374151; }
+.epeditor-wrapper .ep-editor tr:hover td { background: #fafafa; }
 
 /* ------------------------------------------------------
-   Word Count Bar
+   Word Count
 ------------------------------------------------------ */
-.ep-word-count {
+.epeditor-wrapper .ep-word-count {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -313,260 +279,61 @@
     user-select: none;
 }
 
-.ep-wc-sep { opacity: 0.4; }
+.epeditor-wrapper .ep-wc-sep { opacity: 0.4; }
 
 /* ------------------------------------------------------
-   Table Modal Grid
+   Fullscreen
 ------------------------------------------------------ */
-.ep-table-grid-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 0;
+.epeditor-wrapper.epeditor-fullscreen {
+    height: 100vh !important;
 }
 
-.ep-table-grid {
-    display: grid;
-    gap: 3px;
-    cursor: pointer;
-}
-
-.ep-tbl-cell {
-    width: 24px;
-    height: 24px;
-    border: 1px solid #e2e8f0;
-    border-radius: 3px;
-    background: #f8fafc;
-    transition: background 0.08s, border-color 0.08s;
-}
-
-.ep-tbl-cell-active {
-    background: #bfdbfe;
-    border-color: #7aa2f7;
-}
-
-.ep-table-grid-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #475569;
-    min-width: 50px;
-    text-align: center;
+.epeditor-wrapper.epeditor-fullscreen .ep-editor,
+.epeditor-wrapper.epeditor-fullscreen .ep-code-view,
+.epeditor-wrapper.epeditor-fullscreen .ep-md-view {
+    max-height: none !important;
+    flex: 1 1 auto;
+    height: 0;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 /* ------------------------------------------------------
-   Find & Replace Panel
+   Responsive
 ------------------------------------------------------ */
-#ep-fr-modal {
-    /* pozisyon JS ile ayarlanıyor */
-}
-
-.ep-fr-box {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    padding: 12px;
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.ep-fr-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.ep-fr-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #94a3b8;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0 2px;
-}
-
-.ep-fr-close:hover { color: #1e293b; }
-
-.ep-fr-row {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-}
-
-.ep-fr-row .ep-modal-input { flex: 1; }
-
-.ep-fr-row .ep-modal-btn {
-    padding: 7px 10px;
-    font-size: 13px;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.ep-fr-status {
-    font-size: 11px;
-    color: #64748b;
-    min-height: 16px;
-}
-
-mark.ep-fr-highlight {
-    background: #fef08a;
-    border-radius: 2px;
-    color: inherit;
-}
-
-mark.ep-fr-highlight[style*="f59e0b"] {
-    background: #f59e0b !important;
+@media (max-width: 576px) {
+    .epeditor-wrapper .ep-toolbar { gap: 1px; padding: 4px 6px; }
+    .epeditor-wrapper .ep-toolbar .btn-group { gap: 1px; }
+    .epeditor-wrapper .ep-toolbar .ep-btn { min-width: 24px; height: 26px; font-size: 11px !important; padding: 0 5px; }
+    .epeditor-wrapper .ep-toolbar select.ep-format { height: 26px; font-size: 11px !important; padding: 0 4px; }
+    .epeditor-wrapper .ep-toolbar .ep-fullscreen-btn { font-size: 10px !important; padding: 0 6px; }
+    .epeditor-wrapper .ep-toolbar .ep-fullscreen-btn span.ep-fs-text { display: none; }
 }
 
 /* ------------------------------------------------------
-   About Modal
+   Light Theme
 ------------------------------------------------------ */
-#ep-about-modal {
-    /* paylaşılan modal backdrop/box CSS'i kullanır */
+@media (prefers-color-scheme: light) {
+    .epeditor-wrapper .ep-code-view { background: #f9fafb; color: #1f2937; scrollbar-color: #94a3b8 #e5e7eb; }
+    .epeditor-wrapper .ep-code-view .tag { color: #1a73e8; }
+    .epeditor-wrapper .ep-code-view .attr-name { color: #d14; }
+    .epeditor-wrapper .ep-code-view .attr-value { color: #065f46; }
+    .epeditor-wrapper .ep-code-view .comment { color: #6b7280; }
 }
 
-.ep-about-box {
-    width: 420px;
-    max-width: calc(100vw - 32px);
-}
+/* ======================================================
+   MODALLER — body'e eklenir, wrapper dışı
+   ====================================================== */
 
-.ep-about-logo {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background: #1e293b;
-    color: #fff;
-    border-radius: 7px;
-    font-size: 13px;
-    flex-shrink: 0;
-}
-
-.ep-about-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #64748b;
-}
-
-.ep-about-version {
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    border-radius: 4px;
-    padding: 1px 7px;
-    font-weight: 600;
-    color: #334155;
-    font-size: 11px;
-}
-
-.ep-about-sep { opacity: 0.4; }
-
-.ep-about-desc {
-    font-size: 13px;
-    color: #475569;
-    line-height: 1.55;
-    padding: 4px 0;
-}
-
-.ep-about-features {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 12px;
-    padding: 8px 0;
-    border-top: 1px solid #f1f5f9;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.ep-about-feature {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #374151;
-}
-
-.ep-about-feature i {
-    color: #22c55e;
-    font-size: 11px;
-    flex-shrink: 0;
-}
-
-.ep-about-license {
-    background: #fefce8;
-    border: 1px solid #fef08a;
-    border-radius: 8px;
-    padding: 10px 12px;
-}
-
-.ep-about-license-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: #854d0e;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 5px;
-}
-
-.ep-about-license-body {
-    font-size: 12px;
-    color: #713f12;
-    line-height: 1.6;
-}
-
-.ep-about-license-body a {
-    color: #92400e;
-    font-weight: 600;
-}
-
-.ep-about-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #94a3b8;
-    padding-top: 4px;
-}
-
-.ep-about-footer a {
-    color: #7aa2f7;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.ep-about-footer a:hover {
-    text-decoration: underline;
-}
-
-.ep-info-btn {
-    margin-left: 2px;
-    color: #94a3b8 !important;
-}
-
-.ep-info-btn:hover {
-    color: #475569 !important;
-}
-
-
-#ep-image-modal,
-#ep-link-modal,
-#ep-table-modal,
-#ep-about-modal {
+#ep-image-modal, #ep-link-modal, #ep-table-modal, #ep-about-modal {
     position: fixed;
     inset: 0;
     z-index: 99999;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
 }
 
 .ep-modal-backdrop {
@@ -587,6 +354,7 @@ mark.ep-fr-highlight[style*="f59e0b"] {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    box-sizing: border-box;
 }
 
 .ep-modal-title {
@@ -596,15 +364,11 @@ mark.ep-fr-highlight[style*="f59e0b"] {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
+    padding: 0;
 }
 
-.ep-modal-tabs {
-    display: flex;
-    gap: 4px;
-    background: #f1f5f9;
-    border-radius: 7px;
-    padding: 3px;
-}
+.ep-modal-tabs { display: flex; gap: 4px; background: #f1f5f9; border-radius: 7px; padding: 3px; }
 
 .ep-modal-tab {
     flex: 1;
@@ -618,12 +382,7 @@ mark.ep-fr-highlight[style*="f59e0b"] {
     transition: background 0.12s, color 0.12s;
 }
 
-.ep-modal-tab.ep-modal-tab-active {
-    background: #fff;
-    color: #1e293b;
-    font-weight: 600;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
+.ep-modal-tab.ep-modal-tab-active { background: #fff; color: #1e293b; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
 .ep-modal-input {
     width: 100%;
@@ -635,11 +394,11 @@ mark.ep-fr-highlight[style*="f59e0b"] {
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.12s;
+    font-family: Arial, sans-serif;
+    background: #fff;
 }
 
-.ep-modal-input:focus {
-    border-color: #7aa2f7;
-}
+.ep-modal-input:focus { border-color: #7aa2f7; }
 
 .ep-upload-label {
     display: inline-flex;
@@ -655,37 +414,13 @@ mark.ep-fr-highlight[style*="f59e0b"] {
     transition: background 0.12s;
 }
 
-.ep-upload-label:hover {
-    background: #e2e8f0;
-}
+.ep-upload-label:hover { background: #e2e8f0; }
 
-.ep-link-newtab-label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 13px;
-    color: #475569;
-    cursor: pointer;
-    user-select: none;
-}
+.ep-link-newtab-label { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #475569; cursor: pointer; user-select: none; }
+.ep-link-newtab-label input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #1e293b; }
 
-.ep-link-newtab-label input[type="checkbox"] {
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
-    accent-color: #1e293b;
-}
-
-
-    display: flex;
-    gap: 8px;
-}
-
-.ep-modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
+.ep-modal-alt-row { display: flex; gap: 8px; }
+.ep-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
 .ep-modal-btn {
     padding: 7px 16px;
@@ -694,128 +429,91 @@ mark.ep-fr-highlight[style*="f59e0b"] {
     font-size: 13px;
     cursor: pointer;
     transition: background 0.12s;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
 
-.ep-modal-cancel {
-    background: #f1f5f9;
-    color: #475569;
-}
+.ep-modal-cancel { background: #f1f5f9; color: #475569; }
+.ep-modal-cancel:hover { background: #e2e8f0; }
+.ep-modal-insert { background: #1e293b; color: #fff; display: flex; align-items: center; gap: 6px; }
+.ep-modal-insert:hover { background: #334155; }
 
-.ep-modal-cancel:hover {
-    background: #e2e8f0;
-}
-
-.ep-modal-insert {
-    background: #1e293b;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.ep-modal-insert:hover {
-    background: #334155;
-}
-
-
-.ep-fold-toggle {
-    display: inline-block;
+/* close button (× in title) */
+.ep-fr-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #94a3b8;
     cursor: pointer;
-    width: 16px;
-    text-align: center;
-    margin-right: 5px;
-    color: #7aa2f7;
-    user-select: none;
-    font-weight: 700;
-    font-size: 11px;
-    opacity: 0.75;
-    transition: opacity 0.15s, color 0.15s;
-    vertical-align: baseline;
+    line-height: 1;
+    padding: 0 2px;
 }
-
-    .ep-fold-toggle:hover {
-        opacity: 1;
-        color: #a9c4ff;
-    }
-
-    .ep-fold-toggle.ep-fold-closed {
-        color: #94a3b8;
-    }
-
-.ep-fold-block {
-    display: block; /* block davran ki satırlar kaymasın */
-}
+.ep-fr-close:hover { color: #1e293b; }
 
 /* ------------------------------------------------------
-   Fullscreen Mode
-   (fullscreen class adı: is-fullscreen)
+   Table Grid
 ------------------------------------------------------ */
-.epeditor-wrapper.epeditor-fullscreen .ep-editor,
-.epeditor-wrapper.epeditor-fullscreen .ep-code-view {
-    /* Normal modda zaten flex:1 ile doluyor, fullscreen'de sadece overflow garantile */
-    overflow-y: auto;
-}
+.ep-table-grid-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0; }
+.ep-table-grid { display: grid; gap: 3px; cursor: pointer; }
+.ep-tbl-cell { width: 24px; height: 24px; border: 1px solid #e2e8f0; border-radius: 3px; background: #f8fafc; transition: background 0.08s, border-color 0.08s; box-sizing: border-box; }
+.ep-tbl-cell-active { background: #bfdbfe; border-color: #7aa2f7; }
+.ep-table-grid-label { font-size: 13px; font-weight: 600; color: #475569; min-width: 50px; text-align: center; }
 
 /* ------------------------------------------------------
-   Responsive
+   Find & Replace
 ------------------------------------------------------ */
-@media (max-width: 576px) {
-    .ep-toolbar {
-        gap: 1px;
-        padding: 4px 6px;
-    }
+#ep-fr-modal { /* pozisyon JS ile */ }
 
-    .ep-toolbar .btn-group {
-        gap: 1px;
-    }
-
-    .ep-toolbar .ep-btn {
-        min-width: 24px;
-        height: 26px;
-        font-size: 11px;
-        padding: 0 5px;
-    }
-
-    .ep-toolbar select.ep-format {
-        height: 26px;
-        font-size: 11px;
-        padding: 0 4px;
-    }
-
-    .ep-toolbar .ep-fullscreen-btn {
-        font-size: 10px;
-        padding: 0 6px;
-    }
-
-    /* Tam Ekran yazısını gizle, sadece ikon kalsın */
-    .ep-toolbar .ep-fullscreen-btn span.ep-fs-text {
-        display: none;
-    }
+.ep-fr-box {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    padding: 12px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
+
+.ep-fr-title { font-size: 13px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+.ep-fr-row { display: flex; gap: 4px; align-items: center; }
+.ep-fr-row .ep-modal-input { flex: 1; }
+.ep-fr-row .ep-modal-btn { padding: 7px 10px; font-size: 13px; white-space: nowrap; flex-shrink: 0; }
+.ep-fr-status { font-size: 11px; color: #64748b; min-height: 16px; }
+mark.ep-fr-highlight { background: #fef08a; border-radius: 2px; color: inherit; }
+mark.ep-fr-highlight[style*="f59e0b"] { background: #f59e0b !important; }
 
 /* ------------------------------------------------------
-   Light Theme Override
+   About Modal
 ------------------------------------------------------ */
-@media (prefers-color-scheme: light) {
-    .ep-code-view {
-        background: #f9fafb;
-        color: #1f2937;
-        scrollbar-color: #94a3b8 #e5e7eb;
-    }
+.ep-about-box { width: 420px; max-width: calc(100vw - 32px); }
+.ep-about-logo { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #1e293b; color: #fff; border-radius: 7px; font-size: 13px; flex-shrink: 0; }
+.ep-about-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b; }
+.ep-about-version { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 7px; font-weight: 600; color: #334155; font-size: 11px; }
+.ep-about-sep { opacity: 0.4; }
+.ep-about-desc { font-size: 13px; color: #475569; line-height: 1.55; padding: 4px 0; }
 
-        .ep-code-view .tag {
-            color: #1a73e8;
-        }
-
-        .ep-code-view .attr-name {
-            color: #d14;
-        }
-
-        .ep-code-view .attr-value {
-            color: #065f46;
-        }
-
-        .ep-code-view .comment {
-            color: #6b7280;
-        }
+.ep-about-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 12px;
+    padding: 8px 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
 }
+
+.ep-about-feature { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #374151; }
+.ep-about-feature i { color: #22c55e; font-size: 11px; flex-shrink: 0; }
+
+.ep-about-license { background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 10px 12px; }
+.ep-about-license-title { font-size: 11px; font-weight: 700; color: #854d0e; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.ep-about-license-body { font-size: 12px; color: #713f12; line-height: 1.6; }
+.ep-about-license-body a { color: #92400e; font-weight: 600; }
+
+.ep-about-footer { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #94a3b8; padding-top: 4px; }
+.ep-about-footer a { color: #7aa2f7; text-decoration: none; font-weight: 600; }
+.ep-about-footer a:hover { text-decoration: underline; }

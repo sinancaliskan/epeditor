@@ -133,7 +133,8 @@
                     const pre = editor.querySelector('pre');
                     if (pre) pre.innerText = content;
                 } else {
-                    editor.innerHTML = epSanitize(content, options);
+                    const _opts = wrapper._epOptions || {};
+                    editor.innerHTML = epSanitize(content, _opts);
                 }
             };
             this.getData = function () {
@@ -171,7 +172,7 @@
             const options = Object.assign({}, defaultOptions, userOptions);
             const wrapper = document.createElement('div');
             wrapper.classList.add('epeditor-wrapper');
-            wrapper._epOptions = options; // toggleSourceView için erişilebilir
+            wrapper._epOptions = options;
             textarea.parentNode.insertBefore(wrapper, textarea);
             textarea.style.display = 'none';
 
