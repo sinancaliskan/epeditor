@@ -133,6 +133,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
 }
 
 .epeditor-wrapper .ep-editor,
@@ -180,8 +182,13 @@
 }
 
 .epeditor-wrapper .ep-editor:focus {
-    box-shadow: 0 0 0 2px #b0e0e6 inset;
+    outline: none;
     background-color: #f0f8ff;
+}
+
+.epeditor-wrapper .epeditor-container:focus-within {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 0 2px rgba(122,162,247,0.2);
 }
 
 /* ------------------------------------------------------
@@ -194,7 +201,7 @@
     font-size: 14px;
     line-height: 1.55;
     padding: 14px 16px;
-    border-radius: 10px;
+    border-radius: 0;
     border: none;
     overflow-x: auto;
     overflow-y: auto;
@@ -202,6 +209,8 @@
     -webkit-font-smoothing: antialiased;
     scrollbar-width: auto;
     scrollbar-color: rgba(255,255,255,0.65) rgba(255,255,255,0.15);
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .epeditor-wrapper .ep-code-view::-webkit-scrollbar,
@@ -517,3 +526,254 @@ mark.ep-fr-highlight[style*="f59e0b"] { background: #f59e0b !important; }
 .ep-about-footer { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #94a3b8; padding-top: 4px; }
 .ep-about-footer a { color: #7aa2f7; text-decoration: none; font-weight: 600; }
 .ep-about-footer a:hover { text-decoration: underline; }
+
+/* ======================================================
+   REVİZE SİSTEMİ
+   ====================================================== */
+
+/* Revize işaretli span */
+.ep-revize-span {
+    background: #fef9c3;
+    border-bottom: 2px solid #f59e0b;
+    border-radius: 2px;
+    cursor: help;
+    padding: 0 1px;
+    transition: background 0.15s;
+}
+
+.ep-revize-span:hover {
+    background: #fde68a;
+}
+
+/* Revize butonu */
+.epeditor-wrapper .ep-revize-btn {
+    color: #f59e0b !important;
+}
+
+.epeditor-wrapper .ep-revize-btn:hover {
+    background: #fef3c7 !important;
+    color: #d97706 !important;
+}
+
+.epeditor-wrapper .ep-revize-list-btn {
+    color: #6366f1 !important;
+}
+
+.epeditor-wrapper .ep-revize-list-btn:hover {
+    background: #ede9fe !important;
+    color: #4f46e5 !important;
+}
+
+/* Tooltip */
+.ep-revize-tooltip {
+    position: absolute;
+    z-index: 99999;
+    background: #1e293b;
+    color: #f1f5f9;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    max-width: 260px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    pointer-events: none;
+    line-height: 1.5;
+}
+
+.ep-rv-tt-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #f59e0b;
+}
+
+.ep-rv-tt-date {
+    margin-left: auto;
+    font-weight: 400;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.ep-rv-tt-note {
+    color: #e2e8f0;
+}
+
+/* Revize ekleme modalı */
+#ep-revize-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+}
+
+.ep-rv-selected-text {
+    background: #fef9c3;
+    border-left: 3px solid #f59e0b;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #92400e;
+    font-style: italic;
+}
+
+.ep-rv-note-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.ep-rv-meta {
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Revize panel */
+#ep-revize-panel {
+    /* pozisyon JS ile */
+}
+
+.ep-rv-panel-box {
+    width: 360px !important;
+    max-height: 480px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.ep-rv-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 4px;
+}
+
+.ep-rv-empty {
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: center;
+    padding: 16px 0;
+}
+
+.ep-rv-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: #fafafa;
+}
+
+.ep-rv-item-text {
+    font-size: 12px;
+    color: #92400e;
+    font-style: italic;
+    background: #fef9c3;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+.ep-rv-item-note {
+    font-size: 13px;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.ep-rv-item-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: #64748b;
+    align-items: center;
+}
+
+.ep-rv-status {
+    margin-left: auto;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.ep-rv-status-pending { background: #fef3c7; color: #92400e; }
+.ep-rv-status-accepted { background: #dcfce7; color: #166534; }
+.ep-rv-status-rejected { background: #fee2e2; color: #991b1b; }
+
+.ep-rv-item-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 2px;
+}
+
+.ep-rv-accept {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+}
+
+.ep-rv-accept:hover { background: #bbf7d0 !important; }
+
+.ep-rv-reject {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+}
+
+.ep-rv-reject:hover { background: #fecaca !important; }
+
+.ep-rv-goto {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+    margin-left: auto !important;
+}
+
+.ep-rv-goto:hover { background: #e2e8f0 !important; }
+
+.ep-rv-operator-banner {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ep-rv-operator-hint {
+    font-size: 10px;
+    color: #94a3b8;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* Revize modunda editör görünümü */
+.epeditor-wrapper .ep-editor[contenteditable="false"] {
+    cursor: text;
+    opacity: 1;
+}
+
+/* Preview butonu */
+.epeditor-wrapper .ep-preview-btn {
+    color: #0ea5e9 !important;
+}
+
+.epeditor-wrapper .ep-preview-btn:hover {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+}

@@ -155,8 +155,47 @@
                     const raw = pre ? pre.textContent.trim() : '';
                     return raw ? minifyHTML(htmlDecode(raw)) : '';
                 } else {
-                    return minifyHTML(editor.innerHTML.trim());
+                    // Revize span'larını temizle — sadece içerik kalsın
+                    const clone = editor.cloneNode(true);
+                    clone.querySelectorAll('.ep-revize-span').forEach(span => {
+                        span.replaceWith(document.createTextNode(span.textContent));
+                    });
+                    return minifyHTML(clone.innerHTML.trim());
                 }
+            };
+
+            this.getRevize = function () {
+                const editorId = 'epeditor_' + this.id;
+                const editor = document.getElementById(editorId);
+                if (!editor) return [];
+                const result = [];
+                editor.querySelectorAll('.ep-revize-span').forEach(span => {
+                    result.push({
+                        id: span.dataset.rvId,
+                        text: span.textContent,
+                        note: span.dataset.rvNote,
+                        user: span.dataset.rvUser,
+                        date: span.dataset.rvDate,
+                        status: span.dataset.rvStatus || 'pending'
+                    });
+                });
+                return result;
+            };
+
+            this.setRevize = function (revizeList) {
+                // Revizeleri DOM'a uygula — mevcut span'ları temizle, sonra yeniden işaretle
+                const editorId = 'epeditor_' + this.id;
+                const editor = document.getElementById(editorId);
+                if (!editor || !Array.isArray(revizeList)) return;
+                // Önce varolan span'ları unwrap et
+                editor.querySelectorAll('.ep-revize-span').forEach(span => {
+                    span.replaceWith(document.createTextNode(span.textContent));
+                });
+                editor.normalize();
+                // Her revize için text node'da ara ve span'a sar
+                revizeList.forEach(rv => {
+                    epMarkRevizeInDom(editor, rv);
+                });
             };
             const textarea = this;
 
@@ -166,8 +205,10 @@
                 autoSaveTriggerLength: 5,
                 restoreIfExists: true,
                 sanitize: false,
-                onChange: null,       // function(html) — içerik değişince tetiklenir
-                wordCount: true       // editör altında karakter/kelime sayacı göster
+                onChange: null,
+                wordCount: true,
+                revize: false,
+                preview: false   // true veya { css: ['/extra.css'] } — preview butonunu aktif eder
             };
             const options = Object.assign({}, defaultOptions, userOptions);
             const wrapper = document.createElement('div');
@@ -389,6 +430,66 @@
             infoBtn.className = 'ep-btn ep-info-btn';
             infoBtn.onclick = () => showAboutModal();
             wrapper.querySelector('.ep-toolbar .btn-group').appendChild(infoBtn);
+
+            // Preview butonu
+            if (options.preview) {
+                const previewBtn = document.createElement('button');
+                previewBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                previewBtn.title = 'Önizleme (yeni pencere)';
+                previewBtn.setAttribute('type', 'button');
+                previewBtn.className = 'ep-btn ep-preview-btn';
+                previewBtn.onclick = () => openPreview(editorId, options);
+                wrapper.querySelector('.ep-toolbar .btn-group').appendChild(previewBtn);
+            }
+
+            // Revize butonu — sadece revize: true/object ise göster
+            if (options.revize) {
+                const isOperator = typeof options.revize === 'object' && options.revize.operator;
+
+                if (!isOperator) {
+                    // Revize modu: editör readonly
+                    editor.contentEditable = 'false';
+                    editor.style.cursor = 'default';
+                    editor.style.userSelect = 'text';
+                    // Tüm toolbar butonlarını disable et (revize butonları hariç)
+                    wrapper.querySelectorAll('.ep-btn:not(.ep-revize-btn):not(.ep-revize-list-btn):not(.ep-fullscreen-btn):not(.ep-info-btn)').forEach(btn => {
+                        btn.setAttribute('disabled', 'disabled');
+                        btn.classList.add('opacity-50');
+                    });
+                    wrapper.querySelector('.ep-format')?.setAttribute('disabled', 'disabled');
+                }
+
+                const revizeBtn = document.createElement('button');
+                revizeBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+                revizeBtn.title = isOperator ? 'Revizeleri Gör' : 'Revize Ekle (metin seçin)';
+                revizeBtn.setAttribute('type', 'button');
+                revizeBtn.className = 'ep-btn ep-revize-btn';
+                revizeBtn.dataset.cmd = isOperator ? 'showRevizePanel' : 'addRevize';
+                wrapper.querySelector('.ep-toolbar .btn-group').appendChild(revizeBtn);
+
+                const revizeListBtn = document.createElement('button');
+                revizeListBtn.innerHTML = '<i class="fa-solid fa-list-check"></i>';
+                revizeListBtn.title = 'Revize Listesi';
+                revizeListBtn.setAttribute('type', 'button');
+                revizeListBtn.className = 'ep-btn ep-revize-list-btn';
+                revizeListBtn.dataset.cmd = 'showRevizePanel';
+                wrapper.querySelector('.ep-toolbar .btn-group').appendChild(revizeListBtn);
+
+                // Operator modunda buton başlıklarını güncelle
+                if (isOperator) {
+                    revizeBtn.style.display = 'none'; // listBtn yeterli
+                }
+
+                // Tooltip container
+                const tooltip = document.createElement('div');
+                tooltip.className = 'ep-revize-tooltip';
+                tooltip.style.display = 'none';
+                document.body.appendChild(tooltip);
+                wrapper._epRevizeTooltip = tooltip;
+                wrapper._epIsOperator = isOperator;
+
+                initRevizeTooltip(editor, tooltip);
+            }
         });
     };
 
@@ -475,6 +576,12 @@
             showTableModal(editorId);
         } else if (command === 'findReplace') {
             showFindReplaceModal(editorId);
+        } else if (command === 'addRevize') {
+            const _opts = wrapper._epOptions || {};
+            if (!_opts.revize) return;
+            showRevizeModal(editorId, _opts);
+        } else if (command === 'showRevizePanel') {
+            showRevizePanel(editorId);
         } else {
             document.execCommand(command, false, value);
         }
@@ -815,38 +922,54 @@
 
     // Satırları parse edip her açılış-kapanış tag çiftini foldable bloğa çevir
     function buildFoldableCodeView(highlightedHtml) {
-        // highlightedHtml: colorizeHtml() çıktısı (satır bazlı, \n ile ayrılmış)
         const lines = highlightedHtml.split('\n');
         const result = [];
-        // Stack: {lineIdx, tagName}
         const stack = [];
-        // Her satır için önce plain text'ini al (fold kararı için)
         const plainLines = lines.map(l => l.replace(/<[^>]+>/g, '').trim());
+
+        // Sadece block-level elementler fold'lanabilir
+        const BLOCK_TAGS = new Set([
+            'div','section','article','main','aside','header','footer','nav',
+            'ul','ol','li','dl','dt','dd',
+            'table','thead','tbody','tfoot','tr','th','td','caption','colgroup',
+            'form','fieldset','figure','figcaption','blockquote','details','summary',
+            'dialog','template','head','body','html',
+            'h1','h2','h3','h4','h5','h6','p','pre','address',
+            'select','option','optgroup','datalist','textarea',
+            'script','style','noscript','iframe','object','video','audio','picture','canvas','map'
+        ]);
+
+        // Self-closing / void elementler — bunlar asla fold'lanmaz
+        const VOID_TAGS = new Set([
+            'br','hr','img','input','link','meta','area','base','col',
+            'embed','param','source','track','wbr'
+        ]);
 
         for (let i = 0; i < lines.length; i++) {
             const plain = plainLines[i];
 
             // Kapanış tag mi?
-            const isClose = /^&lt;\/[a-zA-Z]/.test(plain);
-            // Açılış tag mi? (self-closing değil)
-            const openMatch = plain.match(/^&lt;([a-zA-Z][\w-]*)[\s\S]*?&gt;$/) &&
-                              !plain.match(/\/&gt;$/) &&
-                              !isClose;
+            const isClose = /^&lt;\/([a-zA-Z][\w-]*)/.test(plain);
+            const closeMatch = plain.match(/^&lt;\/([a-zA-Z][\w-]*)/);
+            const closeTag = closeMatch ? closeMatch[1].toLowerCase() : null;
+
+            // Açılış tag mi?
+            const openTagMatch = plain.match(/^&lt;([a-zA-Z][\w-]*)/);
+            const openTag = openTagMatch ? openTagMatch[1].toLowerCase() : null;
+            const isSelfClosing = plain.match(/\/&gt;$/) || (openTag && VOID_TAGS.has(openTag));
+            const isOpenBlock = openTag && BLOCK_TAGS.has(openTag) && !isSelfClosing && !isClose;
 
             if (isClose && stack.length > 0) {
                 stack.pop();
             }
 
-            // İleride bu satırdan sonra içerik var mı? (fold toggle gösterme kararı)
-            // Açılış satırı → toggle göster
-            if (openMatch) {
+            if (isOpenBlock) {
                 const blockId = 'epfold_' + i + '_' + Math.random().toString(36).slice(2, 6);
-                // Kaç satır bu bloğun içinde? Hızlı tahmin: bir sonraki aynı seviye kapanışa kadar
                 result.push(
                     `<span class="ep-fold-toggle ep-fold-open" data-fold="${blockId}" title="Bloğu Kapat">▼</span>` +
                     lines[i] + '\n'
                 );
-                stack.push({ blockId, depth: stack.length });
+                stack.push({ blockId, tag: openTag });
                 result.push(`<span class="ep-fold-block" data-fold-block="${blockId}">`);
             } else if (isClose) {
                 result.push(`</span>` + lines[i] + '\n');
@@ -855,7 +978,6 @@
             }
         }
 
-        // Kapanmayan span'ları kapat
         while (stack.length > 0) {
             result.push('</span>');
             stack.pop();
@@ -889,6 +1011,27 @@
                 toggle.classList.remove('ep-fold-closed');
                 toggle.classList.add('ep-fold-open');
             }
+        });
+
+        // Copy event — fold toggle karakterlerini temizle
+        pre.addEventListener('copy', function (e) {
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed) return;
+
+            const range = sel.getRangeAt(0);
+            const frag = range.cloneContents();
+
+            // fold-toggle span'larını kaldır
+            frag.querySelectorAll('.ep-fold-toggle').forEach(t => t.remove());
+
+            // fold-block wrapper'larını unwrap et
+            frag.querySelectorAll('.ep-fold-block').forEach(block => {
+                while (block.firstChild) block.parentNode.insertBefore(block.firstChild, block);
+                block.remove();
+            });
+
+            e.clipboardData.setData('text/plain', frag.textContent);
+            e.preventDefault();
         });
     }
 
@@ -981,6 +1124,353 @@
             if (fullscreenBtn) fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand"></i>&nbsp;<span class="ep-fs-text">Tam Ekran</span>';
         }
     }
+    // ================================================================
+    // REVİZE SİSTEMİ
+    // ================================================================
+
+    function epRevizeId() {
+        return 'rv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+    }
+
+    // Metin seçimini span ile işaretle
+    function epWrapSelectionWithRevize(rv) {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return false;
+        const range = sel.getRangeAt(0);
+        const span = document.createElement('span');
+        span.className = 'ep-revize-span';
+        span.dataset.rvId = rv.id;
+        span.dataset.rvNote = rv.note;
+        span.dataset.rvUser = rv.user;
+        span.dataset.rvDate = rv.date;
+        span.dataset.rvStatus = 'pending';
+        span.contentEditable = 'false';
+        try {
+            range.surroundContents(span);
+        } catch (e) {
+            // Kısmi seçim varsa (tag ortası) — sadece extract et
+            const frag = range.extractContents();
+            span.appendChild(frag);
+            range.insertNode(span);
+        }
+        sel.removeAllRanges();
+        return true;
+    }
+
+    // setRevize için DOM'da text ara ve işaretle
+    function epMarkRevizeInDom(editor, rv) {
+        if (!rv.text) return;
+        const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        let node;
+        while ((node = walker.nextNode())) nodes.push(node);
+
+        for (const textNode of nodes) {
+            const idx = textNode.textContent.indexOf(rv.text);
+            if (idx === -1) continue;
+            const before = textNode.textContent.slice(0, idx);
+            const after = textNode.textContent.slice(idx + rv.text.length);
+            const span = document.createElement('span');
+            span.className = 'ep-revize-span';
+            span.dataset.rvId = rv.id;
+            span.dataset.rvNote = rv.note || '';
+            span.dataset.rvUser = rv.user || '';
+            span.dataset.rvDate = rv.date || '';
+            span.dataset.rvStatus = rv.status || 'pending';
+            span.contentEditable = 'false';
+            span.textContent = rv.text;
+            const parent = textNode.parentNode;
+            const frag = document.createDocumentFragment();
+            if (before) frag.appendChild(document.createTextNode(before));
+            frag.appendChild(span);
+            if (after) frag.appendChild(document.createTextNode(after));
+            parent.replaceChild(frag, textNode);
+            break; // ilk eşleşme
+        }
+    }
+
+    // Tooltip hover sistemi
+    function initRevizeTooltip(editor, tooltip) {
+        editor.addEventListener('mouseover', e => {
+            const span = e.target.closest('.ep-revize-span');
+            if (!span) return;
+            const rect = span.getBoundingClientRect();
+            tooltip.innerHTML = `
+                <div class="ep-rv-tt-header">
+                    <i class="fa-solid fa-comment-pen"></i>
+                    <strong>${span.dataset.rvUser || 'Anonim'}</strong>
+                    <span class="ep-rv-tt-date">${span.dataset.rvDate ? new Date(span.dataset.rvDate).toLocaleDateString('tr-TR') : ''}</span>
+                </div>
+                <div class="ep-rv-tt-note">${span.dataset.rvNote || ''}</div>
+            `;
+            tooltip.style.display = 'block';
+            tooltip.style.left = rect.left + window.scrollX + 'px';
+            tooltip.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        });
+        editor.addEventListener('mouseout', e => {
+            const span = e.target.closest('.ep-revize-span');
+            if (span && !e.relatedTarget?.closest('.ep-revize-span')) {
+                tooltip.style.display = 'none';
+            }
+        });
+        document.addEventListener('scroll', () => { tooltip.style.display = 'none'; }, { passive: true });
+    }
+
+    // Revize ekleme modalı
+    function showRevizeModal(editorId, options) {
+        const editor = document.getElementById(editorId);
+        const sel = window.getSelection();
+
+        if (!sel || sel.isCollapsed) {
+            alert('Lütfen önce revize eklemek istediğiniz metni seçin.');
+            return;
+        }
+        const selectedText = sel.toString().trim();
+        if (!selectedText) return;
+
+        // Seçimi kaydet
+        const range = sel.getRangeAt(0).cloneRange();
+
+        const existing = document.getElementById('ep-revize-modal');
+        if (existing) existing.remove();
+
+        const userName = (typeof options.revize === 'object' && options.revize.user) ? options.revize.user : 'Kullanıcı';
+
+        const modal = document.createElement('div');
+        modal.id = 'ep-revize-modal';
+        modal.innerHTML = `
+            <div class="ep-modal-backdrop"></div>
+            <div class="ep-modal-box">
+                <div class="ep-modal-title">
+                    <i class="fa-solid fa-comment-pen"></i> Revize Ekle
+                    <button class="ep-fr-close" title="Kapat">&times;</button>
+                </div>
+                <div class="ep-rv-selected-text">"${selectedText.slice(0, 80)}${selectedText.length > 80 ? '…' : ''}"</div>
+                <textarea class="ep-modal-input ep-rv-note-input" placeholder="Revize notunuzu yazın..." rows="3"></textarea>
+                <div class="ep-rv-meta">
+                    <i class="fa-solid fa-user"></i> ${userName}
+                    &nbsp;·&nbsp;
+                    <i class="fa-solid fa-calendar"></i> ${new Date().toLocaleDateString('tr-TR')}
+                </div>
+                <div class="ep-modal-actions">
+                    <button class="ep-modal-btn ep-modal-insert" id="ep-rv-save"><i class="fa-solid fa-check"></i> Kaydet</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        function closeModal() { modal.remove(); }
+        modal.querySelector('.ep-modal-backdrop').addEventListener('click', closeModal);
+        modal.querySelector('.ep-fr-close').addEventListener('click', closeModal);
+        modal.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        const noteInput = modal.querySelector('.ep-rv-note-input');
+        setTimeout(() => noteInput.focus(), 50);
+
+        modal.querySelector('#ep-rv-save').addEventListener('click', () => {
+            const note = noteInput.value.trim();
+            if (!note) { noteInput.focus(); return; }
+
+            // Seçimi geri yükle
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            const rv = {
+                id: epRevizeId(),
+                note,
+                user: userName,
+                date: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            const ok = epWrapSelectionWithRevize(rv);
+            if (ok && editor._epSnapshot) editor._epSnapshot();
+            closeModal();
+        });
+    }
+
+    // Revize listesi paneli
+    function showRevizePanel(editorId) {
+        const editor = document.getElementById(editorId);
+        const existing = document.getElementById('ep-revize-panel');
+        if (existing) { existing.remove(); return; }
+
+        const wrapper = editor.closest('.epeditor-wrapper');
+        const isOperator = wrapper._epIsOperator || false;
+        const spans = Array.from(editor.querySelectorAll('.ep-revize-span'));
+
+        const panel = document.createElement('div');
+        panel.id = 'ep-revize-panel';
+
+        if (spans.length === 0) {
+            panel.innerHTML = `<div class="ep-fr-box"><div class="ep-fr-title"><i class="fa-solid fa-list-check"></i> Revizeler <button class="ep-fr-close">&times;</button></div><div class="ep-rv-empty">Henüz revize yok.</div></div>`;
+        } else {
+            const acceptLabel = isOperator ? '<i class="fa-solid fa-check"></i> Tamam' : '<i class="fa-solid fa-check"></i> Kabul Et';
+            const rejectLabel = isOperator ? '<i class="fa-solid fa-xmark"></i> Atla' : '<i class="fa-solid fa-xmark"></i> Reddet';
+
+            const items = spans.map(span => `
+                <div class="ep-rv-item" data-rv-id="${span.dataset.rvId}">
+                    <div class="ep-rv-item-text">"${span.textContent.slice(0, 50)}${span.textContent.length > 50 ? '…' : ''}"</div>
+                    <div class="ep-rv-item-note">${span.dataset.rvNote}</div>
+                    <div class="ep-rv-item-meta">
+                        <span><i class="fa-solid fa-user"></i> ${span.dataset.rvUser}</span>
+                        <span><i class="fa-solid fa-calendar"></i> ${span.dataset.rvDate ? new Date(span.dataset.rvDate).toLocaleDateString('tr-TR') : ''}</span>
+                        <span class="ep-rv-status ep-rv-status-${span.dataset.rvStatus}">${span.dataset.rvStatus === 'pending' ? 'Bekliyor' : span.dataset.rvStatus === 'accepted' ? 'Kabul' : 'Reddedildi'}</span>
+                    </div>
+                    <div class="ep-rv-item-actions">
+                        <button class="ep-modal-btn ep-rv-accept" data-rv-id="${span.dataset.rvId}">${acceptLabel}</button>
+                        <button class="ep-modal-btn ep-rv-reject" data-rv-id="${span.dataset.rvId}">${rejectLabel}</button>
+                        <button class="ep-modal-btn ep-rv-goto" data-rv-id="${span.dataset.rvId}"><i class="fa-solid fa-arrow-right"></i> Git</button>
+                    </div>
+                    ${isOperator ? `<div class="ep-rv-operator-hint">Metni düzenleyin, sonra "Tamam" basın — revize işaretlenir.</div>` : ''}
+                </div>
+            `).join('');
+
+            panel.innerHTML = `<div class="ep-fr-box ep-rv-panel-box">
+                <div class="ep-fr-title"><i class="fa-solid fa-list-check"></i> Revizeler (${spans.length}) <button class="ep-fr-close">&times;</button></div>
+                ${isOperator ? '<div class="ep-rv-operator-banner"><i class="fa-solid fa-circle-info"></i> Operatör modu — metni düzenleyin, revizeleri işaretleyin.</div>' : ''}
+                <div class="ep-rv-list">${items}</div>
+            </div>`;
+        }
+
+        document.body.appendChild(panel);
+
+        // Pozisyonla
+        const rect = wrapper.getBoundingClientRect();
+        panel.querySelector('.ep-fr-box').style.cssText =
+            `position:fixed;top:${rect.top + 8}px;right:${window.innerWidth - rect.right + 8}px;z-index:9999;`;
+
+        function closePanel() { panel.remove(); }
+        panel.querySelector('.ep-fr-close').addEventListener('click', closePanel);
+
+        // Kabul Et / Tamam — span kaldır, metin kalır
+        panel.querySelectorAll('.ep-rv-accept').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const span = editor.querySelector(`.ep-revize-span[data-rv-id="${btn.dataset.rvId}"]`);
+                if (!span) return;
+                span.replaceWith(document.createTextNode(span.textContent));
+                editor.normalize();
+                if (editor._epSnapshot) editor._epSnapshot();
+                closePanel();
+                showRevizePanel(editorId);
+            });
+        });
+
+        // Reddet / Atla — span kaldır, metin de kaldır (revize modunda), operator modunda sadece span'ı kaldır
+        panel.querySelectorAll('.ep-rv-reject').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const span = editor.querySelector(`.ep-revize-span[data-rv-id="${btn.dataset.rvId}"]`);
+                if (!span) return;
+                if (isOperator) {
+                    // Operator: "Atla" — sadece işareti kaldır, metin kalır
+                    span.replaceWith(document.createTextNode(span.textContent));
+                } else {
+                    // Revize modu: "Reddet" — span ve metin kaldırılır
+                    span.remove();
+                }
+                editor.normalize();
+                if (editor._epSnapshot) editor._epSnapshot();
+                closePanel();
+                showRevizePanel(editorId);
+            });
+        });
+
+        // Git
+        panel.querySelectorAll('.ep-rv-goto').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const span = editor.querySelector(`.ep-revize-span[data-rv-id="${btn.dataset.rvId}"]`);
+                if (span) span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+    }
+
+    // ================================================================
+    // PREVİEW — Yeni pencerede açar, sayfanın CSS'lerini taşır
+    // ================================================================
+
+    function openPreview(editorId, options) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+
+        // getData ile temiz HTML al (revize span'ları temizlenmiş)
+        const editorEl = document.getElementById(editorId);
+        const container = editorEl.closest('.epeditor-container');
+        const wrapper = editorEl.closest('.epeditor-wrapper');
+        const mdView = wrapper.querySelector('.ep-md-view');
+
+        let html = '';
+        if (mdView && mdView.style.display === 'block') {
+            html = mdView.value.trim();
+        } else if (editorEl.dataset.viewsource === 'true') {
+            const pre = container.querySelector('pre.ep-code-view');
+            html = pre ? minifyHTML(htmlDecode(pre.textContent.trim())) : '';
+        } else {
+            const clone = editorEl.cloneNode(true);
+            clone.querySelectorAll('.ep-revize-span').forEach(span => {
+                span.replaceWith(document.createTextNode(span.textContent));
+            });
+            html = minifyHTML(clone.innerHTML.trim());
+        }
+
+        // Sayfadaki tüm CSS linklerini otomatik topla
+        const autoLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .map(link => link.href)
+            .filter(href => href && !href.includes('EPEditor')); // EPEditor'ın kendi CSS'ini hariç tut
+
+        // Kullanıcının ek verdiği CSS URL'leri
+        const extraCss = (typeof options.preview === 'object' && Array.isArray(options.preview.css))
+            ? options.preview.css : [];
+
+        const allCss = [...autoLinks, ...extraCss];
+        const cssLinks = allCss.map(href => `<link rel="stylesheet" href="${href}">`).join('\n');
+
+        // Sayfadaki inline style'ları da al
+        const inlineStyles = Array.from(document.querySelectorAll('style'))
+            .map(s => `<style>${s.textContent}</style>`)
+            .join('\n');
+
+        const previewHtml = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Önizleme — EPEditor</title>
+    ${cssLinks}
+    ${inlineStyles}
+    <style>
+        body { padding: 24px; box-sizing: border-box; }
+        .ep-preview-badge {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            background: #1e293b;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    ${html}
+    <div class="ep-preview-badge">EPEditor Önizleme</div>
+</body>
+</html>`;
+
+        // Yeni pencerede aç
+        const previewWin = window.open('', '_blank', 'width=1024,height=768,menubar=no,toolbar=no,location=no');
+        if (!previewWin) {
+            alert('Popup engellendi. Lütfen tarayıcınızın popup engelleyicisine izin verin.');
+            return;
+        }
+        previewWin.document.open();
+        previewWin.document.write(previewHtml);
+        previewWin.document.close();
+    }
+
     function showAboutModal() {
         const existing = document.getElementById('ep-about-modal');
         if (existing) { existing.remove(); return; }

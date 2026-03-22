@@ -33,7 +33,41 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="epeditor.js"></script>
 <script>
-  $('#myeditor').EPEditor({ autoSave: false, restoreIfExists: false,onChange: (html) => console.log(html) });
+  $('#myeditor').EPEditor({ 
+  preview: {
+    css: [
+      'https://beta3.doksanderece.com/polar/src/dist/css/style.css?v=2026032202',
+    ]
+  },
+  autoSave: false, 
+  revize: { operator: true },
+  restoreIfExists: false,onChange:
+  (html) => console.log(html) });
+  $('#myeditor')[0].setRevize([
+  { id: 'rv_1', text: 'Madde 1', note: 'Bu kısmı güncelle', user: 'Ahmet', date: '2026-03-22T10:00:00', status: 'pending' }
+]);
 </script>
 </body>
 </html>
+<!-- 
+// Basit
+$('#editor').EPEditor({ revize: true });
+
+// Kullanıcı adıyla
+$('#editor').EPEditor({ revize: { user: 'Ahmet Yılmaz' } });
+
+// Revizeleri al (sunucuya kaydet)
+const revizeler = $('#editor')[0].getRevize();
+
+// Revizeleri yükle (sunucudan gelince)
+$('#editor')[0].setRevize([
+  { id: 'rv_1', text: 'Pay Tr', note: 'Bu kısmı güncelle', user: 'Ahmet', date: '2026-03-22T10:00:00', status: 'pending' }
+]);
+
+
+// Revize yapan kişi (sadece revize ekleyebilir, metin değiştiremez)
+$('#editor').EPEditor({ revize: { user: 'Ahmet Yılmaz' } });
+
+// Operatör (metni düzenler, revizeleri işler)
+$('#editor').EPEditor({ revize: { operator: true } });
+-->
