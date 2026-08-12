@@ -228,6 +228,7 @@ localStorage.removeItem(key + '_hasDraft');
 |---|---|---|
 | v2.0 | 2026 | Tablo, Bul&Değiştir, Undo stack, onChange, XSS koruması, resim/link modal |
 | v1.9 | 2025 | Yükseklik senkronizasyonu, scroll, syntax highlight |
+| v2.2 | 2026 | Code pane paste stilleri temizlenerek yapıştırıyor ve kode bloklama iyileştirildi. |
 
 ---
 

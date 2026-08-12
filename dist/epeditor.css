@@ -266,6 +266,42 @@
 .epeditor-wrapper .ep-editor li { margin-bottom: 0.4em; line-height: 1.5; }
 
 /* ------------------------------------------------------
+   Yapıştırılan kod (akıllı paste)
+   <p>/<span> içine yapıştırılan kod → inline beyaz <code>
+   Blok seviye kod → <pre class="ep-paste-code"> kod bloğu
+------------------------------------------------------ */
+.epeditor-wrapper .ep-editor code {
+    background: #1d2a3a;
+    color: #f1f5f9;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 0.9em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.epeditor-wrapper .ep-editor pre.ep-paste-code {
+    background: #0b1020;
+    color: #e5e7eb;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0.6em 0;
+}
+
+.epeditor-wrapper .ep-editor pre.ep-paste-code code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    white-space: pre;
+    font-size: inherit;
+}
+
+/* ------------------------------------------------------
    Table (WYSIWYG)
 ------------------------------------------------------ */
 .epeditor-wrapper .ep-editor table { border-collapse: collapse; width: 100%; margin: 0.8em 0; font-size: 14px; }
