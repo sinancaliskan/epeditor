@@ -24,6 +24,7 @@
 | Tam Ekran | Wrapper'ı viewport'a yayar, tüm modlar desteklenir |
 | Responsive | Mobilde kompakt toolbar, butonlar otomatik küçülür |
 | onChange Callback | İçerik değişince minify edilmiş HTML döner |
+| Canlı Önizleme | Yeni pencerede açılır, editördeki değişiklikler anında yansır |
 
 ---
 
@@ -70,7 +71,8 @@ $('#myeditor').EPEditor({
   restoreIfExists: true,           // Sayfa açılışında draft varsa geri yükle (varsayılan: true)
   sanitize: false,                 // DOMPurify ile XSS temizliği (varsayılan: false)
   wordCount: true,                 // Alt çubukta karakter/kelime sayacı (varsayılan: true)
-  onChange: null                   // function(html) — içerik her değiştiğinde tetiklenir
+  onChange: null,                  // function(html) — içerik her değiştiğinde tetiklenir
+  preview: false                   // Canlı önizleme butonu — true veya { css: ['/extra.css'] }
 });
 ```
 
@@ -92,6 +94,39 @@ $('#myeditor').EPEditor({
   sanitize: true  // DOMPurify yüklü olmalı
 });
 ```
+
+---
+
+## Canlı Önizleme
+
+`preview` seçeneği toolbar'a göz ikonu (👁) butonu ekler. Butona tıklanınca önizleme yeni bir pencerede açılır ve **editörde yapılan her değişiklik anında önizlemeye yansır**:
+
+- WYSIWYG, Kod ve Markdown modlarının üçünde de çalışır
+- Undo/Redo, `setData()` ve mod geçişleri de önizlemeyi günceller
+- Sayfanın tüm `<link rel="stylesheet">` ve `<style>` blokları otomatik taşınır
+- Markdown modunda önizleme, içeriği render edilmiş HTML olarak gösterir
+- Aynı butona tekrar tıklanınca eski pencere kapanıp yenisi açılır
+
+```js
+$('#myeditor').EPEditor({
+  preview: true // veya { css: ['/kendi-stillerim.css'] }
+});
+```
+
+Ek CSS dosyaları vermek için:
+
+```js
+$('#myeditor').EPEditor({
+  preview: {
+    css: [
+      'https://site.com/kendi-tema.css',
+      '/assets/editor-styles.css'
+    ]
+  }
+});
+```
+
+> **Not:** Önizleme penceresi sayfadaki mevcut stilleri de varsayılan olarak alır. EPEditor'ın kendi CSS'i hariç tutulur.
 
 ---
 
@@ -226,6 +261,7 @@ localStorage.removeItem(key + '_hasDraft');
 
 | Versiyon | Tarih | Notlar |
 |---|---|---|
+| v2.3 | 2026 | Canlı önizleme — editördeki değişiklikler önizleme penceresine anında yansır |
 | v2.0 | 2026 | Tablo, Bul&Değiştir, Undo stack, onChange, XSS koruması, resim/link modal |
 | v1.9 | 2025 | Yükseklik senkronizasyonu, scroll, syntax highlight |
 | v2.2 | 2026 | Code pane paste stilleri temizlenerek yapıştırıyor ve kode bloklama iyileştirildi. |

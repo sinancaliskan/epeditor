@@ -75,6 +75,12 @@
         // Revize tooltip ve floating buton
         if (wrapper._epRevizeTooltip) wrapper._epRevizeTooltip.style.display = 'none';
         if (wrapper._epRevizeFloatBtn) wrapper._epRevizeFloatBtn.style.display = 'none';
+
+        // Açık önizleme penceresini kapat
+        if (wrapper._epPreviewWin && !wrapper._epPreviewWin.closed) {
+            try { wrapper._epPreviewWin.close(); } catch (e) { /* ignore */ }
+        }
+        delete wrapper._epPreviewWin;
     }
 
     function watchWrapperRemoval(wrapper, textarea) {
@@ -175,20 +181,24 @@
                     mdView.value = content;
                     if (mdBtn) mdBtn.classList.add('bg-gray-300');
                     if (codeBtn) codeBtn.classList.remove('bg-gray-300');
+                    updateLivePreview(editorId);
                     return;
                 }
 
                 if (mdView && mdView.style.display === 'block') {
                     mdView.value = content;
+                    updateLivePreview(editorId);
                     return;
                 }
 
                 if (editor.dataset.viewsource === 'true') {
                     const pre = editor.querySelector('pre');
                     if (pre) pre.innerText = content;
+                    updateLivePreview(editorId);
                 } else {
                     const _opts = wrapper._epOptions || {};
                     editor.innerHTML = epSanitize(content, _opts);
+                    updateLivePreview(editorId);
                 }
             };
             this.getData = function () {
@@ -414,6 +424,7 @@
                             editor.contentEditable = true;
                             if (mdBtn) mdBtn.classList.remove('bg-gray-300');
                         }
+                        updateLivePreview(editorId);
                         return;
                     }
 
@@ -445,6 +456,9 @@
                 if (wordCountBar) {
                     updateWordCount(editor, wordCountBar);
                 }
+
+                // Önizleme açıksa canlı güncelle
+                updateLivePreview(editorId);
             });
 
             function insertHtmlAtSelectionOrCursor(html) {
@@ -769,6 +783,11 @@
         mdView.style.height = '300px';
         editorContainer.appendChild(mdView);
 
+        // Markdown modunda yapılan değişiklikleri canlı önizlemeye yansıt
+        mdView.addEventListener('input', () => {
+            updateLivePreview(editorId);
+        });
+
     }
 
     function execCmd(editorId, command, value = null) {
@@ -1088,6 +1107,7 @@
             pos--;
             ignoreNext = true;
             editor.innerHTML = stack[pos];
+            updateLivePreview(editor.id);
         }
 
         function redo() {
@@ -1095,6 +1115,7 @@
             pos++;
             ignoreNext = true;
             editor.innerHTML = stack[pos];
+            updateLivePreview(editor.id);
         }
 
         // İlk snapshot
@@ -1319,6 +1340,11 @@
             }
             attachFoldHandlers(pre);
 
+            // Kod görünümünde yapılan değişiklikleri canlı önizlemeye yansıt
+            pre.addEventListener('input', () => {
+                updateLivePreview(editorId);
+            });
+
             // editor'ı gizle, pre'yi container'a ekle (markdown modundaki gibi)
             editor.style.display = 'none';
             container.appendChild(pre);
@@ -1330,6 +1356,7 @@
             });
             if (codeBtn) codeBtn.classList.add('bg-gray-300');
             if (mdBtn) mdBtn.classList.remove('bg-gray-300');
+            updateLivePreview(editorId);
         } else {
             const pre = container.querySelector('pre.ep-code-view');
 
@@ -1361,6 +1388,7 @@
                 btn.classList.remove('opacity-50');
             });
             if (codeBtn) codeBtn.classList.remove('bg-gray-300');
+            updateLivePreview(editorId);
         }
     }
 
@@ -2066,33 +2094,34 @@
     } // showRevizePanel sonu
 
     // ================================================================
-    // PREVİEW — Yeni pencerede açar, sayfanın CSS'lerini taşır
+    // PREVİEW — Yeni pencerede açılır, editördeki değişiklikler canlı yansır
+    // Açık önizleme penceresi wrapper üzerinde tutulur: wrapper._epPreviewWin
     // ================================================================
 
-    function openPreview(editorId, options) {
-        const editor = document.getElementById(editorId);
-        if (!editor) return;
-
-        // getData ile temiz HTML al (revize span'ları temizlenmiş)
+    function getPreviewBodyHtml(editorId) {
         const editorEl = document.getElementById(editorId);
+        if (!editorEl) return '';
         const container = editorEl.closest('.epeditor-container');
         const wrapper = editorEl.closest('.epeditor-wrapper');
+        if (!wrapper) return '';
         const mdView = wrapper.querySelector('.ep-md-view');
 
-        let html = '';
         if (mdView && mdView.style.display === 'block') {
-            html = mdView.value.trim();
-        } else if (editorEl.dataset.viewsource === 'true') {
-            const pre = container.querySelector('pre.ep-code-view');
-            html = pre ? minifyHTML(htmlDecode(cleanCodeText(pre).trim())) : '';
-        } else {
-            const clone = editorEl.cloneNode(true);
-            clone.querySelectorAll('.ep-revize-span').forEach(span => {
-                span.replaceWith(document.createTextNode(span.textContent));
-            });
-            html = minifyHTML(clone.innerHTML.trim());
+            const md = mdView.value.trim();
+            return md ? markdownToHtml(md) : '';
         }
+        if (editorEl.dataset.viewsource === 'true') {
+            const pre = container.querySelector('pre.ep-code-view');
+            return pre ? minifyHTML(htmlDecode(cleanCodeText(pre).trim())) : '';
+        }
+        const clone = editorEl.cloneNode(true);
+        clone.querySelectorAll('.ep-revize-span').forEach(span => {
+            span.replaceWith(document.createTextNode(span.textContent));
+        });
+        return minifyHTML(clone.innerHTML.trim());
+    }
 
+    function buildPreviewDocument(editorId, options, html) {
         // Sayfadaki tüm CSS linklerini otomatik topla
         const autoLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
             .map(link => link.href)
@@ -2110,7 +2139,7 @@
             .map(s => `<style>${s.textContent}</style>`)
             .join('\n');
 
-        const previewHtml = `<!DOCTYPE html>
+        return `<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -2136,20 +2165,60 @@
     </style>
 </head>
 <body>
-    ${html}
+    <div class="ep-preview-content">${html}</div>
     <div class="ep-preview-badge">EPEditor Önizleme</div>
 </body>
 </html>`;
+    }
 
-        // Yeni pencerede aç
+    function openPreview(editorId, options) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+
+        const wrapper = editor.closest('.epeditor-wrapper');
+
+        // Açık bir önizleme penceresi varsa kapat
+        if (wrapper._epPreviewWin && !wrapper._epPreviewWin.closed) {
+            wrapper._epPreviewWin.close();
+        }
+        delete wrapper._epPreviewWin;
+
         const previewWin = window.open('', '_blank', 'width=1024,height=768,menubar=no,toolbar=no,location=no');
         if (!previewWin) {
             alert('Popup engellendi. Lütfen tarayıcınızın popup engelleyicisine izin verin.');
             return;
         }
+
         previewWin.document.open();
-        previewWin.document.write(previewHtml);
+        previewWin.document.write(buildPreviewDocument(editorId, options, getPreviewBodyHtml(editorId)));
         previewWin.document.close();
+
+        wrapper._epPreviewWin = previewWin;
+    }
+
+    // Önizleme penceresi açıksa editördeki güncel içeriği canlı yansıt
+    function updateLivePreview(editorId) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const wrapper = editor.closest('.epeditor-wrapper');
+        if (!wrapper || !wrapper._epPreviewWin || wrapper._epPreviewWin.closed) return;
+
+        const win = wrapper._epPreviewWin;
+        const doc = win.document;
+        if (!doc || !doc.body) return;
+
+        // Güncelleme sırasında scroll pozisyonunu koru
+        const scrollTop = doc.body.scrollTop || doc.documentElement.scrollTop;
+
+        let contentEl = doc.querySelector('.ep-preview-content');
+        if (!contentEl) {
+            contentEl = doc.createElement('div');
+            contentEl.className = 'ep-preview-content';
+            doc.body.insertBefore(contentEl, doc.querySelector('.ep-preview-badge'));
+        }
+        contentEl.innerHTML = getPreviewBodyHtml(editorId);
+
+        doc.body.scrollTop = doc.documentElement.scrollTop = scrollTop;
     }
 
     function showAboutModal(wrapper) {
